@@ -9,14 +9,15 @@ MODULE_LICENSE("GPL");
 
 void** sys_call_table = NULL;
 
-char *filepath = "sys";
-//MODULE_PARM(filepath,”s”);
+char *filepath;
+MODULE_PARM(filepath,"s");
 
-static int original_sys_unlink = (int)sys_unlink;
+asmlinkage long (*original_sys_unlink)(const char * pathname);
 
+#define STRINGS_ARE_EQUAL(s1, s2)   (!strcmp((s1), (s2)))
 asmlinkage long our_sys_unlink(const char *pathname) {
-    if (!strcmp(pathname, filepath)) return -EACCES;
-    return sys_unlink(pathname);
+    if (STRINGS_ARE_EQUAL(pathname, filepath)) return -EACCES;
+    return original_sys_unlink(pathname);
 }
 
 void find_sys_call_table(int scan_range) {
@@ -28,16 +29,13 @@ void find_sys_call_table(int scan_range) {
 
 int init_module(void) {
     
-    // Finding the sys_call_table address like a p.i.m.p
-    find_sys_call_table(136);
-    
-    // Hacking the sys_call_table like a motherfucker
+    find_sys_call_table(136 /* lucky number */);
+    original_sys_unlink = sys_call_table[__NR_unlink];
     sys_call_table[__NR_unlink] = our_sys_unlink;
     
     return 0;
 }
 
 void cleanup_module(void) {
-    // restore original address like a bitch
-    sys_call_table[__NR_unlink] = (void *)original_sys_unlink;
+    sys_call_table[__NR_unlink] = original_sys_unlink;
 }
