@@ -12,7 +12,9 @@ MODULE_LICENSE("GPL");
 void** sys_call_table = NULL;
 
 int scan_range=0;
+char* filepath=NULL;
 MODULE_PARM(scan_range, "i");
+MODULE_PARM(filepath, "s");
 
 // TODO: import original syscall and write new syscall
 
