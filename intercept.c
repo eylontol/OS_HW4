@@ -7,7 +7,6 @@
 
 MODULE_LICENSE("GPL");
 
-
 void** sys_call_table = NULL;
 
 char *filepath;
