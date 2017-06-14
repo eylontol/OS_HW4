@@ -19,12 +19,10 @@ MODULE_PARM(scan_range, "i");
 
 void find_sys_call_table(int scan_range)
 {
-    void* i = &system_utsname;
-    for (;*((unsigned long *)i) != (unsigned long)sys_read && scan_range > 0; i++, scan_range--);
-    if (*((unsigned long *)i) == (unsigned long)sys_read)
+    int* i = &system_utsname;
+    for (;*((unsigned int *)i) != (unsigned int)sys_read && scan_range > 0; i++, scan_range--);
+    if (*((unsigned int *)i) == (unsigned int)sys_read)
     {
-        printk("FOUND\n");
-        printk("%lu\n",*((unsigned long *)i));
         i-=__NR_read;
         sys_call_table = i;
     }
