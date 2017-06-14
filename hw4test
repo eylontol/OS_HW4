@@ -1,0 +1,21 @@
+#!/bin/sh
+mkdir ./files
+
+function mkfiles {
+	i=$1
+	mkdir files
+	while [ $i -gt 0 ]; do
+		touch files/file$i.txt
+		let i=i-1
+	done
+	insmod ./intercept.o scan_range=150 filepath= "$(pwd)/files/file1.txt"
+}
+
+mkfiles $1
+m=$1
+while [ $m -gt 1 ]; do
+    ./a.out "$(pwd)/files/file$m.txt" "1" "1"
+    let m=m-1
+done
+./a.out "$(pwd)/files/file$m.txt" "0" "1"
+rmmod intercept
