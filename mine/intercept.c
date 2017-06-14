@@ -10,7 +10,7 @@ MODULE_LICENSE("GPL");
 
 
 void** sys_call_table = NULL;
-void* old_address;
+asmlinkage long (*old_address)(const char *);
 
 int scan_range=0;
 char* filepath=NULL;
@@ -23,7 +23,7 @@ MODULE_PARM(filepath, "s");
 asmlinkage long our_sys_unlink(const char *pathname)
 {
     if(strcmp(pathname, filepath)==0) return -EACCES;
-    else return ((asmlinkage long(*)(const char *))old_address)(pathname);
+    else return old_address(pathname);
 }
 
 void find_sys_call_table(int scan_range)
