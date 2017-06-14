@@ -1,14 +1,10 @@
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/utsname.h>
-#include <unistd.h>
+#include <linux/syscall.h>
 
 MODULE_LICENSE("GPL");
-
-extern asmlinkage ssize_t sys_read(unsigned int fd, char * buf, size_t count);
 
 void** sys_call_table = NULL;
 
@@ -26,6 +22,8 @@ void find_sys_call_table(int scan_range) {
 int init_module(void) {
     printk("init_module\n");
     find_sys_call_table(136);
+    if (sys_call_table) printk("sys_call_table address = 0x%08x\n", (int)sys_call_table);
+    else printk("Couldn't find syscall_table address\n");
     return 0;
 }
 
