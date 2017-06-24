@@ -9,7 +9,7 @@ MODULE_LICENSE("GPL");
 
 void** sys_call_table = NULL;
 
-char *filepath;
+char *filepath = NULL;
 MODULE_PARM(filepath,"s");
 
 asmlinkage long (*original_sys_unlink)(const char * pathname);
@@ -28,12 +28,16 @@ void find_sys_call_table(int scan_range) {
 }
 
 int init_module(void) {
-    find_sys_call_table(136 /* lucky number */);
-    original_sys_unlink = sys_call_table[__NR_unlink];
-    sys_call_table[__NR_unlink] = our_sys_unlink;
+    if (filepath != NULL){
+        find_sys_call_table(136 /* lucky number */);
+        original_sys_unlink = sys_call_table[__NR_unlink];
+        sys_call_table[__NR_unlink] = our_sys_unlink;
+    }
     return 0;
 }
 
 void cleanup_module(void) {
-    sys_call_table[__NR_unlink] = original_sys_unlink;
+    if (filepath != NULL){
+        sys_call_table[__NR_unlink] = original_sys_unlink;
+    }
 }
