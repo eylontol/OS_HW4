@@ -1,21 +1,20 @@
-#!/bin/sh
-mkdir ./files
+#!/bin/bash
 
 function mkfiles {
-	i=$1
-	mkdir files
-	while [ $i -gt 0 ]; do
+    mkdir files
+    for i in `seq 1 5`;
+    do
 		touch files/file$i.txt
-		let i=i-1
 	done
-	insmod ./intercept.o scan_range=150 filepath= "$(pwd)/files/file1.txt"
+	insmod ./intercept.o filepath="files/file1.txt"
 }
-
 mkfiles $1
-m=$1
-while [ $m -gt 1 ]; do
-    ./a.out "$(pwd)/files/file$m.txt" "1" "1"
-    let m=m-1
+for m in `seq 2 5`;
+do
+    ./a.out "files/file$m.txt" "1" $((m - 1))
 done
-./a.out "$(pwd)/files/file$m.txt" "0" "1"
+./a.out "files/file1.txt" "0" "5"
 rmmod intercept
+rm -rf files
+cat out.txt
+rm -f out.txt

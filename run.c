@@ -28,5 +28,7 @@ int main(int argc, char *argv[]) {
     else if ((STR_EQUAL(argv[2], EXPBAD)) && (res != 0) && (errno == 13)) testRes = 1;
     
     fprintf(fout, "<TEST %s> %s\n", argv[3], testRes ? "SUCCESS" : "FAILED");
+    
+    fclose(fout);
     return 0;
 }
