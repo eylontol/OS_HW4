@@ -1,0 +1,60 @@
+#!/bin/bash
+# based on Uriel's test at https://www.facebook.com/groups/hafala234123/1753526361331792/
+
+filename="deleteMe"
+
+function CLEANUP {
+    rmmod intercept
+    rm -rf $filename
+}
+
+function VALIDATE_EXIT_CODE {
+    if [[ $? != 0 ]]; then 
+        echo "$1 failed!"
+        echo "exit..."
+        CLEANUP
+        exit
+    fi
+}
+
+function VALIDATE_OK {
+    if [[ $? != 0 ]]; then 
+        echo "FAILED!: $1"
+    else 
+        echo "OK: $1"
+    fi
+}
+
+function VALIDATE_DMESG {
+   dmesg | grep "Oops:"
+    if [[ $? == 0 ]]; then 
+        echo "FAILED!: There was a kernel oops in dmesg. Run dmesg for details"
+    else 
+        echo "OK: No kernel oops detected"
+    fi
+}
+
+# remove old dmesg
+dmesg -c > /dev/null
+
+# compile
+make
+VALIDATE_EXIT_CODE "make"
+
+#install module with no filepath parameter
+#see https://piazza.com/class/j09en22pxas2eo?cid=441
+insmod ./intercept.o
+VALIDATE_EXIT_CODE "insmod"
+
+#create random file and delete it
+touch $filename
+VALIDATE_EXIT_CODE "create file $filename"
+rm -f $filename
+VALIDATE_EXIT_CODE "delete $filename"
+
+# remove module
+rmmod intercept
+VALIDATE_OK "rmmod"
+
+# make sure there was no kernel oops
+VALIDATE_DMESG

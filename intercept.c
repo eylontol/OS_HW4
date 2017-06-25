@@ -14,9 +14,9 @@ MODULE_PARM(filepath,"s");
 
 asmlinkage long (*original_sys_unlink)(const char * pathname);
 
-#define STRINGS_ARE_EQUAL(s1, s2)   (!strcmp((s1), (s2)))
+#define STRINGS_ARE_EQUAL(s1, s2)   ((s1) && (s2) && !strcmp((s1), (s2)))
 asmlinkage long our_sys_unlink(const char *pathname) {
-    if (pathname && STRINGS_ARE_EQUAL(pathname, filepath)) return -EACCES;
+    if (STRINGS_ARE_EQUAL(pathname, filepath)) return -EACCES;
     return original_sys_unlink(pathname);
 }
 
